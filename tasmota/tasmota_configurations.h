@@ -181,19 +181,20 @@
 //#define USE_AS608                                // Add support for AS608 optical and R503 capacitive fingerprint sensor (+3k4 code)
 
 #define USE_ENERGY_SENSOR                        // Add energy sensors (-14k code)
-#define USE_PZEM004T                             // Add support for PZEM004T Energy monitor (+2k code)
-#define USE_PZEM_AC                              // Add support for PZEM014,016 Energy monitor (+1k1 code)
-#define USE_PZEM_DC                              // Add support for PZEM003,017 Energy monitor (+1k1 code)
-#define USE_MCP39F501                            // Add support for MCP39F501 Energy monitor as used in Shelly 2 (+3k1 code)
-#define USE_SDM72                                // Add support for Eastron SDM72-Modbus energy monitor (+0k3 code)
-#define USE_SDM120                               // Add support for Eastron SDM120-Modbus energy monitor (+1k1 code)
-#define USE_SDM630                               // Add support for Eastron SDM630-Modbus energy monitor (+0k6 code)
-#define USE_DDS2382                              // Add support for Hiking DDS2382 Modbus energy monitor (+0k6 code)
-#define USE_DDSU666                              // Add support for Chint DDSU666 Modbus energy monitor (+0k6 code)
+// #define USE_PZEM004T                             // Add support for PZEM004T Energy monitor (+2k code)
+// #define USE_PZEM_AC                              // Add support for PZEM014,016 Energy monitor (+1k1 code)
+// #define USE_PZEM_DC                              // Add support for PZEM003,017 Energy monitor (+1k1 code)
+// #define USE_MCP39F501                            // Add support for MCP39F501 Energy monitor as used in Shelly 2 (+3k1 code)
+// #define USE_SDM72                                // Add support for Eastron SDM72-Modbus energy monitor (+0k3 code)
+// #define USE_SDM120                               // Add support for Eastron SDM120-Modbus energy monitor (+1k1 code)
+// #define USE_SDM630                               // Add support for Eastron SDM630-Modbus energy monitor (+0k6 code)
+// #define USE_DDS2382                              // Add support for Hiking DDS2382 Modbus energy monitor (+0k6 code)
+// #define USE_DDSU666                              // Add support for Chint DDSU666 Modbus energy monitor (+0k6 code)
 //#define USE_SOLAX_X1                             // Add support for Solax X1 series Modbus log info (+3k1 code)
 //#define USE_LE01MR                               // Add support for F&F LE-01MR modbus energy meter (+2k code)
 //#define USE_TELEINFO                             // Add support for French Energy Provider metering telemetry (+5k2 code, +168 RAM + SmartMeter LinkedList Values RAM)
 //#define USE_WE517                                // Add support for Orno WE517-Modbus energy monitor (+1k code)
+#define USE_LED_METER
 
 #define USE_DHT                                  // Add support for DHT11, AM2301 (DHT21, DHT22, AM2302, AM2321) and SI7021 Temperature and Humidity sensor
 #define USE_MAX31855                             // Add support for MAX31855 K-Type thermocouple sensor using softSPI

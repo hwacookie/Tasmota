@@ -33,9 +33,11 @@
 
 ;
 
-uint32_t last = 0;
-uint32_t tickCounter = 0;
-
+volatile uint32_t lastBefore = 0;
+volatile uint32_t lastTickReceived = 0;
+volatile uint32_t tickCounter = 0;
+volatile bool triggerEnabled = true;
+float curEnergy = 0.0;
 
 /********************************************************************************************/
 
@@ -49,27 +51,23 @@ void LDRInterrupt(void) ICACHE_RAM_ATTR;
  */
 void LDRInterrupt(void)  
 {
+  if (!triggerEnabled) return;
+  triggerEnabled = false;
   tickCounter++;
-  uint32_t now = micros();
-  if ((last>0) && (now>last)) {
-    uint32_t diff = now - last; 
-    Energy.active_power[0] = (3600000000/diff) * 2;
 
-    Energy.data_valid[0] = 1;
-  } else {
-    Energy.data_valid[0] = 0;
-  }
-  last = now;
-  #ifdef LED_PIN
-  digitalWrite(LED_PIN, 0);
-  #endif
-
+  lastBefore = lastTickReceived;
+  lastTickReceived = micros();
 }
 
 void LEDMeterEvery200ms(void) {
   #ifdef LED_PIN
-  digitalWrite(LED_PIN, 1);
-  #endif
+  if (!triggerEnabled) {
+    digitalWrite(LED_PIN, 1);
+  } else {
+    digitalWrite(LED_PIN, 0);
+  }
+  #endif  
+  triggerEnabled = true;
 }
 
 /**
@@ -77,8 +75,26 @@ void LEDMeterEvery200ms(void) {
  */
 void LedMeterEverySecond(void)
 {
+
+  uint32_t now = micros();
+  // check if the time-diff between now and the last trigger event is longer than the 
+  // time-diff between the last trigger event and the event before.
+  // if it is, adapt the energy calculation
+  float diff = 0.0;
+  if ((now-lastTickReceived)>(lastTickReceived-lastBefore)) {
+    diff = now - lastTickReceived;
+  } else {
+    diff = lastTickReceived-lastBefore;
+  } 
+  curEnergy = (3600000000.0 / diff) * 2.0;
+  
+  if (curEnergy>0)
+    Energy.data_valid[0] = 1;
+
   //Energy.kWhtoday_delta = 1010.0;
+  Energy.active_power[0] = curEnergy;
   EnergyUpdateTotal(tickCounter * 2, false);
+  AddLog(LOG_LEVEL_DEBUG, PSTR("NRG: curEnergy:%4_f ticks: %d"), &curEnergy, tickCounter);
 }
 
 void LedMeterSnsInit(void)
