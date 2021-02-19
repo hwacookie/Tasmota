@@ -31,13 +31,16 @@
 
 #define LED_PIN  1
 
-;
 
-volatile uint32_t lastBefore = 0;
-volatile uint32_t lastTickReceived = 0;
-volatile uint32_t tickCounter = 0;
-volatile bool triggerEnabled = true;
+
+volatile uint32_t tick_2 = 0;
+volatile uint32_t tick_1 = 0;
+volatile uint32_t tick_0 = 0;
+volatile uint32_t tick_now = 0;
+volatile bool ledOn = false;
 float curEnergy = 0.0;
+volatile uint32_t tickCounter = 0;
+
 
 /********************************************************************************************/
 
@@ -51,23 +54,25 @@ void LDRInterrupt(void) ICACHE_RAM_ATTR;
  */
 void LDRInterrupt(void)  
 {
-  if (!triggerEnabled) return;
-  triggerEnabled = false;
-  tickCounter++;
-
-  lastBefore = lastTickReceived;
-  lastTickReceived = micros();
+  tick_now = micros();
+  if ((tick_now-tick_0) > 100000) {
+    tick_2 = tick_1;
+    tick_1 = tick_0;
+    tick_0 = tick_now;
+    ledOn = true;
+    tickCounter++;
+  }
 }
 
 void LEDMeterEvery200ms(void) {
   #ifdef LED_PIN
-  if (!triggerEnabled) {
+  if (ledOn) {
     digitalWrite(LED_PIN, 1);
   } else {
     digitalWrite(LED_PIN, 0);
   }
+  ledOn = false;
   #endif  
-  triggerEnabled = true;
 }
 
 /**
@@ -76,23 +81,13 @@ void LEDMeterEvery200ms(void) {
 void LedMeterEverySecond(void)
 {
 
-  uint32_t now = micros();
-  // check if the time-diff between now and the last trigger event is longer than the 
-  // time-diff between the last trigger event and the event before.
-  // if it is, adapt the energy calculation
-  float diff = 0.0;
-  if ((now-lastTickReceived)>(lastTickReceived-lastBefore)) {
-    diff = now - lastTickReceived;
-  } else {
-    diff = lastTickReceived-lastBefore;
-  } 
-  curEnergy = (3600000000.0 / diff) * 2.0;
-  
-  if (curEnergy>0)
+  float diff = tick_0 - tick_2;
+  if (diff>0) {
+    curEnergy = (3600000000.0 / diff) * 4.0;
+    Energy.active_power[0] = curEnergy;
     Energy.data_valid[0] = 1;
+  }
 
-  //Energy.kWhtoday_delta = 1010.0;
-  Energy.active_power[0] = curEnergy;
   EnergyUpdateTotal(tickCounter * 2, false);
   AddLog(LOG_LEVEL_DEBUG, PSTR("NRG: curEnergy:%4_f ticks: %d"), &curEnergy, tickCounter);
 }
